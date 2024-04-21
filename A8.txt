@@ -1,0 +1,92 @@
+import java.util.*;
+public class DiskScheduling{
+
+public static void main(String[] args)
+{
+    int hp=0;
+    int bs=0;
+    int n=0;
+
+    Scanner sc=new Scanner(System.in);
+        System.out.println("Enter the number of reference points:");
+         n=sc.nextInt();
+        int arr[]=new int[n];
+        System.out.println("Enter the string:");
+        for(int i=0;i<n;i++)
+        {
+            arr[i]=sc.nextInt();
+        }
+        System.out.println("Head Position");
+         hp=sc.nextInt();
+        System.out.println("Barrel Size");
+         bs=sc.nextInt();
+
+        int FIFO=fifo(arr,hp,bs);
+        System.out.println("FIFO"+FIFO);
+        int SSTF=sstf(arr,hp,bs);
+         System.out.println("SSTF"+SSTF);
+}
+        
+
+
+
+
+
+
+static int fifo(int arr[],int hp,int bs)
+{
+  int seektime=0;
+  seektime=seektime+Math.abs(hp-arr[0]);
+for(int i=1;i<arr.length;i++)
+{
+    seektime+=Math.abs(arr[i]-arr[i-1]);
+}
+return seektime;
+}
+
+static int sstf(int arr[], int hp, int bs) {
+    int seektime = 0;
+    int left = 0;
+    int right = 0;
+
+    Arrays.sort(arr);
+
+    while (arr[left] <= hp) {
+        left++;
+        if (left == arr.length)
+         break; // Check if left is out of bounds
+    }
+
+    right = left;
+
+    int curr = hp;
+
+    while (left > 0 && right < arr.length) {
+        if (Math.abs(curr - arr[left - 1]) < Math.abs(curr - arr[right])) {
+            seektime += Math.abs(curr - arr[left - 1]);
+            curr = arr[left - 1];
+            left--;
+        } else {
+            seektime += Math.abs(curr - arr[right]);
+            curr = arr[right];
+            right++;
+        }
+    }
+
+    while (left > 0) {
+        seektime += Math.abs(curr - arr[left - 1]);
+        curr = arr[left - 1];
+        left--;
+    }
+
+    while (right < arr.length) {
+        seektime += Math.abs(curr - arr[right]);
+        curr = arr[right];
+        right++;
+    }
+
+    return seektime;
+}
+
+
+}

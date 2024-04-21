@@ -1,0 +1,124 @@
+import java.util.*;
+
+public class PagingAlgorithms {
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("Enter the number of pages:");
+        int numOfPages = scanner.nextInt();
+        int[] pageRequests = new int[numOfPages];
+
+        System.out.println("Enter the page requests:");
+        for (int i = 0; i < numOfPages; i++) {
+            pageRequests[i] = scanner.nextInt();
+        }
+
+        System.out.println("Enter the frame size:");
+        int frameSize = scanner.nextInt();
+
+        simulateFCFS(numOfPages, pageRequests, frameSize);
+        simulateLRU(numOfPages, pageRequests, frameSize);
+        simulateOptimal(numOfPages, pageRequests, frameSize);
+
+        scanner.close();
+    }
+
+    public static void simulateFCFS(int numOfPages, int[] pageRequests, int frameSize) {
+        Queue<Integer> frameQueue = new LinkedList<>();
+        int pageFaults = 0;
+
+        for (int page : pageRequests) {
+            if (!frameQueue.contains(page)) {
+                if (frameQueue.size() < frameSize) {
+                    frameQueue.add(page);
+                    pageFaults++;
+                } else {
+                    frameQueue.poll();
+                    frameQueue.add(page);
+                    pageFaults++;
+                }
+            }
+        }
+
+        System.out.println("FCFS Page Faults: " + pageFaults);
+    }
+
+    public static void simulateLRU(int numOfPages, int[] pageRequests, int frameSize) {
+        Queue<Integer> frameQueue = new LinkedList<>();
+        int pageFaults = 0;
+
+        for (int page : pageRequests) {
+            if (!frameQueue.contains(page)) {
+                if (frameQueue.size() < frameSize) {
+                    frameQueue.add(page);
+                    pageFaults++;
+                } else {
+                    frameQueue.poll();
+                    frameQueue.add(page);
+                    pageFaults++;
+                }
+            } else {
+                frameQueue.remove(page);
+                frameQueue.add(page);
+            }
+        }
+
+        System.out.println("LRU Page Faults: " + pageFaults);
+    }
+
+    public static void simulateOptimal(int numOfPages, int[] pageRequests, int frameSize) {
+        Queue<Integer> frameQueue = new LinkedList<>();
+        int pageFaults = 0;
+
+        for (int i = 0; i < numOfPages; i++) {
+            if (!frameQueue.contains(pageRequests[i])) {
+                if (frameQueue.size() < frameSize) {
+                    frameQueue.add(pageRequests[i]);
+                    pageFaults++;
+                } else {
+                    int removePage = findPageToRemove(pageRequests, i, frameQueue, frameSize);
+                    if (removePage != -1) {
+                        frameQueue.remove((Integer) removePage);
+                        frameQueue.add(pageRequests[i]);
+                        pageFaults++;
+                    }
+                }
+            }
+        }
+
+        System.out.println("Optimal Page Faults: " + pageFaults);
+    }
+
+    public static int findPageToRemove(int[] pageRequests, int currentIndex, Queue<Integer> frameQueue, int frameSize) {
+        int count = 0;
+        Queue<Integer> tempQueue = new LinkedList<>();
+        tempQueue.addAll(frameQueue);
+
+        for (int j = currentIndex + 1; j < pageRequests.length && count < frameSize - 1; j++) {
+            if (tempQueue.contains(pageRequests[j])) {
+                tempQueue.remove(pageRequests[j]);
+                count++;
+            }
+        }
+
+        while (count > 1) {
+            tempQueue.poll();
+            count--;
+        }
+
+        return (tempQueue.isEmpty()) ? -1 : tempQueue.poll();
+    }
+}
+
+
+
+//Enter the number of pages:
+//10
+//Enter the page requests:
+//4 7 6 1 7 6 1 2 7 2
+//Enter the frame size:
+//3
+//FCFS Page Faults: 6
+//LRU Page Faults: 6
+//Optimal Page Faults: 5
